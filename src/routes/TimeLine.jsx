@@ -39,7 +39,7 @@ export default function TimeLine() {
       <NavBar />
       <h1>timeline</h1>
       <ContainerAddPost>
-        <AddPost pictureUrl={infosUser.imgUrl} setFormSubmitted={setFormSubmitted} />
+        <AddPost pictureUrl={localStorage.getItem("userImgUrl")} setFormSubmitted={setFormSubmitted} />
       </ContainerAddPost>
       {post.length !== 0 ? (
         <ContainerPosts>
