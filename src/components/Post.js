@@ -12,13 +12,21 @@ export default function Post({ body, liked }) {
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [textHovered, setTextHovered] = useState(body.likesUsernames);
+  const [numLikes, setNumLikes] = useState(body.likes)
+
   const { REACT_APP_API_URL } = process.env;
   const navigate = useNavigate()
   const { infosUser } = useContext(AuthContext);
-  console.log(body)
+
   async function like(postId) {
     setButtonDisabled(true);
-    setClickLike((current) => !current);
+    if (clickLike) {
+      setClickLike(false)
+      setNumLikes(Number(numLikes) + 1)
+    } else {
+      setClickLike(true)
+      setNumLikes(Number(numLikes) - 1)
+    }
     try {
       await axios.post(
         `${REACT_APP_API_URL}/likes`,
@@ -96,7 +104,7 @@ export default function Post({ body, liked }) {
         <ContainerNumberLikes
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}>
-          <h4 data-test="counter">{body.likes} likes</h4>
+          <h4 data-test="counter">{numLikes} likes</h4>
           {isHovered && <div>{textHovered}</div>}
         </ContainerNumberLikes>
         <AiOutlineDelete onClick={() => deletePost(body.id)} />
@@ -163,6 +171,7 @@ const ContainerPost = styled.div`
       height: 50px;
       border-radius: 100%;
       margin-bottom: 15px;
+      object-fit: cover;
     }
   }
   > div:last-child {
