@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { AiOutlineCloudSync, AiOutlineDelete, AiOutlineHeart, AiOutlineSync } from "react-icons/ai";
+import { AiFillDelete, AiOutlineHeart, AiFillEdit } from "react-icons/ai";
 import { AiFillHeart } from "react-icons/ai";
 import { ReactTagify } from "react-tagify";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export default function Post({ body, liked }) {
+export default function Post({ body, liked, refresh, setRefresh }) {
   const [clickLike, setClickLike] = useState(!liked);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -51,6 +51,7 @@ export default function Post({ body, liked }) {
         headers: { Authorization: `Bearer ${infosUser.token}` },
       });
       setButtonDisabled(false);
+      setRefresh(!refresh);
     } catch (res) {
       console.log(res.response.status);
       setButtonDisabled(false);
@@ -69,6 +70,7 @@ export default function Post({ body, liked }) {
         }
       );
       setButtonDisabled(false);
+      setRefresh(!refresh);
     } catch (res) {
       console.log(res.response.status);
       setButtonDisabled(false);
@@ -107,11 +109,17 @@ export default function Post({ body, liked }) {
           <h4 data-test="counter">{numLikes} likes</h4>
           {isHovered && <div>{textHovered}</div>}
         </ContainerNumberLikes>
-        <AiOutlineDelete onClick={() => deletePost(body.id)} />
-        <AiOutlineSync onClick={() => updatePost(body.id)} />
       </div>
       <div>
-        <h1 onClick={() => navigate(`/user/${body.userId}`)}>{body.username}</h1>
+        <div>
+          <h1 onClick={() => navigate(`/user/${body.userId}`)}>{body.username}</h1>
+          {(body.userId === Number(localStorage.getItem("userId"))) &&
+            <div>
+              <AiFillEdit onClick={() => updatePost(body.id)} />
+              <AiFillDelete onClick={() => deletePost(body.id)} />
+            </div>
+          }
+        </div>
         {body.description ? (
           <ReactTagify
             colors="white"
@@ -177,6 +185,20 @@ const ContainerPost = styled.div`
   > div:last-child {
     margin-left: 20px;
     width: calc(100% - 40px - 10px);
+
+    >div{
+      display: flex;
+      justify-content: space-between;
+
+      >div{
+        display: flex;
+
+        justify-content: space-between;
+        width: 50px;
+      }
+      
+    }
+
     h1 {
       color: #ffffff;
       font-size: 19px;

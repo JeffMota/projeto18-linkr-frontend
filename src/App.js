@@ -17,7 +17,7 @@ export default function App() {
             <Route path="/sign-up" element={<SignupPage />} />
             <Route path="/timeline" element={<TimeLine />} />
             <Route path="/hashtag/:tag" element={<TagPage />} />
-             <Route path="/user/:id" element={<UserTimeLine />} />
+            <Route path="/user/:id" element={<UserTimeLine />} />
           </Routes>
         </BrowserRouter>
       </Container>
