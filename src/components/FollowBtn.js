@@ -1,8 +1,8 @@
 import styled from "styled-components"
 
-export default function FollowBtn({ following }) {
+export default function FollowBtn({ clickFunction, following }) {
     return (
-        <Container>
+        <Container onClick={clickFunction} following={following}>
             {(following) ? "Unfollow" : "Follow"}
         </Container>
     )
@@ -22,9 +22,9 @@ const Container = styled.button`
     border-radius: 5px;
 
     font-family: "Lato", sans-serif;
-    color: #ffff;
+    color: ${props => (props.following) ? "#1877F2" : "#FFFFFF"};
     font-weight: 700;
 
-    background-color: #1877F2;
+    background-color: ${props => (props.following) ? "#FFFFFF" : "#1877F2"};
 
 `

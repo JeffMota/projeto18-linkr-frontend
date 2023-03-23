@@ -17,6 +17,7 @@ export default function NavBar(imgUrl) {
 
   function logout() {
     if (localStorage.getItem("userToken")) localStorage.removeItem("userToken");
+    if (localStorage.getItem("userId")) localStorage.removeItem("userId");
     if (localStorage.getItem("userImgUrl")) localStorage.removeItem("userImgUrl");
     navigate("/");
   }
@@ -29,21 +30,21 @@ export default function NavBar(imgUrl) {
 
       <SearchBar />
 
-            <Menu menu={menu} onClick={toggleMenu}>
-                <div>
-                    <IconContext.Provider value={{ color: "white", size: '1.7em' }}>
-                        <AiOutlineDown />
-                    </IconContext.Provider>
-                </div>
-                <UserImg data-test="avatar" src={localStorage.getItem("userImgUrl")} alt='' />
-            </Menu>
-            <MenuBackground menu={menu} onClick={toggleMenu}>
-                <Options data-test="menu" onClick={logout} menu={menu}>
-                    <p data-test="logout" >Logout</p>
-                </Options>
-            </MenuBackground>
-        </Container>
-    )
+      <Menu menu={menu} onClick={toggleMenu}>
+        <div>
+          <IconContext.Provider value={{ color: "white", size: '1.7em' }}>
+            <AiOutlineDown />
+          </IconContext.Provider>
+        </div>
+        <UserImg data-test="avatar" src={localStorage.getItem("userImgUrl")} alt='' />
+      </Menu>
+      <MenuBackground menu={menu} onClick={toggleMenu}>
+        <Options data-test="menu" onClick={logout} menu={menu}>
+          <p data-test="logout" >Logout</p>
+        </Options>
+      </MenuBackground>
+    </Container>
+  )
 }
 
 const Container = styled.div`
