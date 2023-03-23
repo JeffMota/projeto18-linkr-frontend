@@ -17,8 +17,10 @@ export default function UserTimeLine() {
 
   const [postUser, setPostUser] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [disable, setDisable] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [following, setFollowing] = useState(false)
 
   const { REACT_APP_API_URL } = process.env;
 
@@ -54,6 +56,15 @@ export default function UserTimeLine() {
     if (!infosUser) {
       return navigate("/");
     }
+
+    const promise = axios.get(`${REACT_APP_API_URL}/followers/${localStorage.getItem("userId")}/${userId}`)
+    promise.then((res) => {
+      if (res.data) setFollowing(true)
+    })
+    promise.catch((err) => {
+      console.log(err.response.message)
+    })
+
     const res = axios.get(`${REACT_APP_API_URL}/posts`, {
       headers: { Authorization: `Bearer ${infosUser.token}` },
     });
@@ -81,6 +92,36 @@ export default function UserTimeLine() {
     return <Loading />;
   }
 
+  function handleFollow() {
+    setDisable(true)
+
+    if (following) {
+      const promise = axios.delete(`${REACT_APP_API_URL}/followers/${localStorage.getItem("userId")}/${userId}`)
+      promise.then((res) => {
+        setFollowing(false)
+        setDisable(false)
+      })
+      promise.catch((err) => {
+        console.log(err.response.message)
+        setDisable(false)
+      })
+    }
+    else {
+      const promise = axios.post(`${REACT_APP_API_URL}/followers`, {
+        followerId: localStorage.getItem("userId"),
+        followedId: userId
+      })
+      promise.then((res) => {
+        setFollowing(true)
+        setDisable(false)
+      })
+      promise.catch((err) => {
+        console.log(err.response.message)
+        setDisable(false)
+      })
+    }
+  }
+
   return (
     <Container>
       <NavBar />
@@ -88,7 +129,7 @@ export default function UserTimeLine() {
         <div>
           <h1>{infoUsername}'s posts</h1>
           {(localStorage.getItem("userId") !== userId) &&
-            <FollowBtn following={false} />
+            <FollowBtn disabled={disable} clickFunction={handleFollow} following={following} />
           }
         </div>
         {(localStorage.getItem("userId") == userId) &&
