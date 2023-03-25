@@ -63,6 +63,8 @@ export default function SearchBar() {
                     (searchResult.map((r) => <ResultBox data-test="user-search">
                         <Img onClick={() => { goUserPage(r.id) }} src={r.pictureUrl} />
                         <Username onClick={() => { goUserPage(r.id) }} >{r.username}</Username>
+                        <Following>{r.following? "• following" :<></>}</Following>
+                        
                     </ResultBox>
                     )))}
             </SearchBarResult>
@@ -126,4 +128,17 @@ display:flex;
 `
 const Username = styled.div`
 margin-top:20px;
-margin-left:40px`
+margin-left:10px;
+font-size: 19px;
+`
+
+const Following = styled.div`
+margin-top:20px;
+margin-left:10px;
+color: #C5C5C5;
+font-family: 'Lato';
+font-style: normal;
+font-weight: 400;
+font-size: 19px;
+line-height: 23px;
+`
