@@ -96,7 +96,6 @@ export default function UserTimeLine() {
       setLoading(true);
     });
 
-
   }, [REACT_APP_API_URL, infosUser, navigate, formSubmitted, refresh]);
 
   if (!infosUser) {

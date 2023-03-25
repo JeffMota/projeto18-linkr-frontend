@@ -3,7 +3,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { SocketContext } from "../contexts/SocketContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import NavBar from "../components/NavBar";
@@ -18,6 +18,7 @@ export default function TimeLine() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const navigate = useNavigate();
   const { REACT_APP_API_URL } = process.env;
+  const [following , setFollowing] = useState(false)
   socket.on("update", (data) => {
     setSocketChannel(true);
   });
@@ -30,7 +31,6 @@ export default function TimeLine() {
       headers: { Authorization: `Bearer ${infosUser.token}` },
     });
     res.then((res) => {
-      console.log(res.status);
       setPost(res.data);
       setLoading(true);
     });
@@ -40,6 +40,16 @@ export default function TimeLine() {
       );
       setLoading(true);
     });
+
+    const followSomeone = axios.get(`${REACT_APP_API_URL}/followers/${infosUser.userId}`)
+    followSomeone.then((followSomeone)=>{
+      if(followSomeone.data.length > 0){
+        setFollowing(true) 
+      }
+    } )
+    console.log(following)
+
+
   }, [
     REACT_APP_API_URL,
     infosUser,
@@ -47,6 +57,7 @@ export default function TimeLine() {
     formSubmitted,
     setSocketChannel,
     socketChannel,
+    following
   ]);
   if (!loading) {
     return <Loading />;
@@ -71,9 +82,12 @@ export default function TimeLine() {
             />
           ))}
         </ContainerPosts>
-      ) : (
-        <div data-test="message">There are no posts yet</div>
-      )}
+      ) : following?(
+        <div data-test="message">No posts found from your friends</div>
+      ):(
+        <div data-test="message">You don't follow anyone yet. Search for new friends!</div>
+      )
+      }
     </Container>
   );
 }
