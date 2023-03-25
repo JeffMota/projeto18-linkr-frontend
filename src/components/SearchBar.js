@@ -1,10 +1,13 @@
 import styled from "styled-components"
 import { useState } from "react"
 import { AiOutlineSearch } from 'react-icons/ai';
+import { useContext } from "react";
 // import {DebounceInput} from 'react-debounce-input';
 import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
+
 
 
 export default function SearchBar() {
@@ -12,10 +15,14 @@ export default function SearchBar() {
     const [search, setSearch] = useState("")
     const [searchResult, setSearchResult] = useState([])
     const [toggleResult, setToggleResult] = useState(false)
+    const { infosUser } = useContext(AuthContext);
+
 
     async function fetchData() {
         try {
-            const req = await axios.post(process.env.REACT_APP_API_URL + '/search', { username: search })
+            const payload = {username:search}
+            const req = await axios.post(process.env.REACT_APP_API_URL + '/search',  payload,{
+                headers: { authorization: `Bearer ${infosUser.token}` }} )
             setSearchResult(req.data)
             console.log(searchResult)
         } catch (error) {
