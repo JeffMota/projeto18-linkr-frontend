@@ -71,11 +71,24 @@ export default function UserTimeLine() {
     res.then((res) => {
 
       const filtered = res.data.filter(p => p.userId == userId);
+
+      if(filtered.length==0){
+        setPostUser("")
+        const res = axios.get(`${REACT_APP_API_URL}/search/${userId}`, {
+          headers: { Authorization: `Bearer ${infosUser.token}` },
+        });
+        res.then((res)=> {
+          console.log(res,"data")
+          setInfoUsername(res.data[0].username)
+
+        })
+      }
+      else{
+        setPostUser(filtered);
+        setInfoUsername(filtered[0].username)
+      }
+
       console.log(filtered)
-
-      setPostUser(filtered);
-
-      setInfoUsername(filtered[0].username)
       setLoading(true);
     });
     res.catch(() => {
