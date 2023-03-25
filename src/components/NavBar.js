@@ -18,7 +18,8 @@ export default function NavBar(imgUrl) {
   function logout() {
     if (localStorage.getItem("userToken")) localStorage.removeItem("userToken");
     if (localStorage.getItem("userId")) localStorage.removeItem("userId");
-    if (localStorage.getItem("userImgUrl")) localStorage.removeItem("userImgUrl");
+    if (localStorage.getItem("userImgUrl"))
+      localStorage.removeItem("userImgUrl");
     navigate("/");
   }
 
@@ -32,19 +33,23 @@ export default function NavBar(imgUrl) {
 
       <Menu menu={menu} onClick={toggleMenu}>
         <div>
-          <IconContext.Provider value={{ color: "white", size: '1.7em' }}>
+          <IconContext.Provider value={{ color: "white", size: "1.7em" }}>
             <AiOutlineDown />
           </IconContext.Provider>
         </div>
-        <UserImg data-test="avatar" src={localStorage.getItem("userImgUrl")} alt='' />
+        <UserImg
+          data-test="avatar"
+          src={localStorage.getItem("userImgUrl")}
+          alt=""
+        />
       </Menu>
       <MenuBackground menu={menu} onClick={toggleMenu}>
         <Options data-test="menu" onClick={logout} menu={menu}>
-          <p data-test="logout" >Logout</p>
+          <p data-test="logout">Logout</p>
         </Options>
       </MenuBackground>
     </Container>
-  )
+  );
 }
 
 const Container = styled.div`
@@ -54,7 +59,7 @@ const Container = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-
+  z-index: 3;
   align-items: center;
   justify-content: space-between;
 
@@ -72,17 +77,15 @@ const Logo = styled.div`
   }
 `;
 const MenuBackground = styled.div`
+  display: ${(props) => (props.menu ? "block" : "none")};
 
-    display: ${props => (props.menu) ? 'block' : "none"};
+  position: absolute;
+  left: 0;
+  top: 0;
 
-    position: absolute;
-    left: 0;
-    top: 0;
-
-    width: 100vw;
-    height: 100vh;
-
-`
+  width: 100vw;
+  height: 100vh;
+`;
 
 const Menu = styled.div`
   cursor: pointer;
