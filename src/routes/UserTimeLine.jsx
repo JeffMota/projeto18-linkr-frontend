@@ -65,12 +65,13 @@ export default function UserTimeLine() {
       console.log(err.response.message)
     })
 
-    const res = axios.get(`${REACT_APP_API_URL}/posts`, {
+    const res = axios.get(`${REACT_APP_API_URL}/posts/${userId}`, {
       headers: { Authorization: `Bearer ${infosUser.token}` },
     });
     res.then((res) => {
 
       const filtered = res.data.filter(p => p.userId == userId);
+      console.log(filtered)
 
       setPostUser(filtered);
 
