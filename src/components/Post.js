@@ -6,26 +6,53 @@ import { AiFillHeart } from "react-icons/ai";
 import { ReactTagify } from "react-tagify";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Comment from "../components/Comment";
 
-export default function Post({ body, liked, refresh, setRefresh }) {
+export default function Post({ body, liked }) {
   const [clickLike, setClickLike] = useState(!liked);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [textHovered, setTextHovered] = useState(body.likesUsernames);
-  const [numLikes, setNumLikes] = useState(body.likes)
-
+  const [numLikes, setNumLikes] = useState(body.likes);
   const { REACT_APP_API_URL } = process.env;
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { infosUser } = useContext(AuthContext);
+  ///
+
+  const [comment, setComment] = useState([
+    {
+      pictureUrl:
+        "https://sdinovacoesgraficas.com.br/wp-content/uploads/2020/07/the-flash_2023-Costurado-1I1-CAPA1.png",
+      username: "Flash",
+      description: "Também achei",
+      follow: "post's author",
+    },
+    {
+      pictureUrl:
+        "https://sdinovacoesgraficas.com.br/wp-content/uploads/2020/07/the-flash_2023-Costurado-1I1-CAPA1.png",
+      username: "Flash",
+      description: "Também achei",
+      follow: "following",
+    },
+    {
+      pictureUrl:
+        "https://sdinovacoesgraficas.com.br/wp-content/uploads/2020/07/the-flash_2023-Costurado-1I1-CAPA1.png",
+      username: "Flash",
+      description: "Também achei",
+      follow: "",
+    },
+  ]);
+
+  ///
 
   async function like(postId) {
     setButtonDisabled(true);
     if (clickLike) {
-      setClickLike(false)
-      setNumLikes(Number(numLikes) + 1)
+      setClickLike(false);
+      setNumLikes(Number(numLikes) + 1);
     } else {
-      setClickLike(true)
-      setNumLikes(Number(numLikes) - 1)
+      setClickLike(true);
+      setNumLikes(Number(numLikes) - 1);
     }
     try {
       await axios.post(
@@ -37,7 +64,6 @@ export default function Post({ body, liked, refresh, setRefresh }) {
       );
       setButtonDisabled(false);
     } catch (res) {
-      console.log(res.response.status);
       setClickLike((current) => !current);
       setButtonDisabled(false);
     }
@@ -51,7 +77,6 @@ export default function Post({ body, liked, refresh, setRefresh }) {
         headers: { Authorization: `Bearer ${infosUser.token}` },
       });
       setButtonDisabled(false);
-      setRefresh(!refresh);
     } catch (res) {
       console.log(res.response.status);
       setButtonDisabled(false);
@@ -70,7 +95,6 @@ export default function Post({ body, liked, refresh, setRefresh }) {
         }
       );
       setButtonDisabled(false);
-      setRefresh(!refresh);
     } catch (res) {
       console.log(res.response.status);
       setButtonDisabled(false);
@@ -88,62 +112,77 @@ export default function Post({ body, liked, refresh, setRefresh }) {
     const normalizedTag = tag.match(/[\wñÑáéíóúÁÉÍÓÚãÃõÕâÂêÊôÔ]+/g)[0];
     const cleanTag = tag.match(/#[\wñÑáéíóúÁÉÍÓÚãÃõÕâÂêÊôÔ]+/g)[0];
     // const updateClicks = await axios.post()
-    navigate(`/hashtag/${normalizedTag}`, { cleanTag: cleanTag })
+    navigate(`/hashtag/${normalizedTag}`, { cleanTag: cleanTag });
   }
   return (
-    <ContainerPost data-test="post">
-      <div>
-        <img src={body.pictureUrl} alt="imagePost" />
-        <ContainerLike
-          data-test="like-btn"
-          clicked={clickLike}
-          onClick={() => {
-            like(body.id);
-          }}
-          disabled={buttonDisabled}>
-          {clickLike ? <AiOutlineHeart /> : <AiFillHeart />}
-        </ContainerLike>
-        <ContainerNumberLikes
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}>
-          <h4 data-test="counter">{numLikes} likes</h4>
-          {isHovered && <div>{textHovered}</div>}
-        </ContainerNumberLikes>
-      </div>
-      <div>
+    <>
+      <ContainerPost data-test="post">
         <div>
-          <h1 onClick={() => navigate(`/user/${body.userId}`)}>{body.username}</h1>
-          {(body.userId === Number(localStorage.getItem("userId"))) &&
-            <div>
-              <AiFillEdit onClick={() => updatePost(body.id)} />
-              <AiFillDelete onClick={() => deletePost(body.id)} />
-            </div>
-          }
+          <img src={body.pictureUrl} alt="imagePost" />
+          <ContainerLike
+            data-test="like-btn"
+            clicked={clickLike}
+            onClick={() => {
+              like(body.id);
+            }}
+            disabled={buttonDisabled}>
+            {clickLike ? <AiOutlineHeart /> : <AiFillHeart />}
+          </ContainerLike>
+          <ContainerNumberLikes
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}>
+            <h4 data-test="counter">{numLikes} likes</h4>
+            {isHovered && <div>{textHovered}</div>}
+          </ContainerNumberLikes>
         </div>
-        {body.description ? (
-          <ReactTagify
-            colors="white"
-            tagClicked={(tag) => handleTag(tag)}
-          >
-            <h2 data-test="description">{body.description}</h2>
-          </ReactTagify>
-        ) : (
-          <h2 >{body.description}</h2>
-        )}
-        <a ata-test="link" href={body.url} target="_blank" rel="noopener noreferrer">
-          <section>
-            <div>
-              <h3>{body.urlTitle}</h3>
-              <h4>{body.urlDescription}</h4>
-              <h4>{body.url}</h4>
-            </div>
-            <div>
-              <img src={body.urlImage} alt="imagePost" />
-            </div>
-          </section>
-        </a>
-      </div>
-    </ContainerPost>
+        <div>
+          <div>
+            <h1 onClick={() => navigate(`/user/${body.userId}`)}>
+              {body.username}
+            </h1>
+            {body.userId === Number(localStorage.getItem("userId")) && (
+              <div>
+                <AiFillEdit onClick={() => updatePost(body.id)} />
+                <AiFillDelete onClick={() => deletePost(body.id)} />
+              </div>
+            )}
+          </div>
+          {body.description ? (
+            <ReactTagify colors="white" tagClicked={(tag) => handleTag(tag)}>
+              <h2 data-test="description">{body.description}</h2>
+            </ReactTagify>
+          ) : (
+            <h2>{body.description}</h2>
+          )}
+          <a
+            ata-test="link"
+            href={body.url}
+            target="_blank"
+            rel="noopener noreferrer">
+            <section>
+              <div>
+                <h3>{body.urlTitle}</h3>
+                <h4>{body.urlDescription}</h4>
+                <h4>{body.url}</h4>
+              </div>
+              <div>
+                <img src={body.urlImage} alt="imagePost" />
+              </div>
+            </section>
+          </a>
+        </div>
+      </ContainerPost>
+      {comment.length !== 0 && (
+        <ContainerComments>
+          {comment.map((p) => (
+            <>
+              <Comment key={p.id} body={p} />
+              <hr></hr>
+            </>
+          ))}
+        </ContainerComments>
+      )}
+    </>
   );
 }
 
@@ -154,7 +193,7 @@ const ContainerPost = styled.div`
   height: fit-content;
   border-radius: 15px;
   border: none;
-  margin-bottom: 20px;
+  margin-top: 20px;
   font-size: 20px;
   padding: 15px;
   display: flex;
@@ -186,17 +225,16 @@ const ContainerPost = styled.div`
     margin-left: 20px;
     width: calc(100% - 40px - 10px);
 
-    >div{
+    > div {
       display: flex;
       justify-content: space-between;
 
-      >div{
+      > div {
         display: flex;
 
         justify-content: space-between;
         width: 50px;
       }
-      
     }
 
     h1 {
@@ -261,5 +299,20 @@ const ContainerNumberLikes = styled.div`
     line-height: 1.5;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 1;
+  }
+`;
+
+const ContainerComments = styled.div`
+  display: flex;
+  background-color: #1e1e1e;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: fit-content;
+  padding-top: 10px;
+  hr {
+    width: 95%;
+    height: 0;
+    border-top: 1px solid #353535;
   }
 `;

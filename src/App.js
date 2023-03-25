@@ -1,26 +1,29 @@
 import styled from "styled-components";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AuthProvider from "./contexts/AuthContext";
+import SocketProvider from "./contexts/SocketContext";
 import SigninPage from "./routes/SigninPage";
 import SignupPage from "./routes/SignupPage";
 import TimeLine from "./routes/TimeLine";
-import UserTimeLine from "./routes/UserTimeLine.jsx"
+import UserTimeLine from "./routes/UserTimeLine.jsx";
 import TagPage from "./routes/TagPage";
 
 export default function App() {
   return (
     <AuthProvider>
-      <Container>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<SigninPage />} />
-            <Route path="/sign-up" element={<SignupPage />} />
-            <Route path="/timeline" element={<TimeLine />} />
-            <Route path="/hashtag/:tag" element={<TagPage />} />
-            <Route path="/user/:id" element={<UserTimeLine />} />
-          </Routes>
-        </BrowserRouter>
-      </Container>
+      <SocketProvider>
+        <Container>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<SigninPage />} />
+              <Route path="/sign-up" element={<SignupPage />} />
+              <Route path="/timeline" element={<TimeLine />} />
+              <Route path="/hashtag/:tag" element={<TagPage />} />
+              <Route path="/user/:id" element={<UserTimeLine />} />
+            </Routes>
+          </BrowserRouter>
+        </Container>
+      </SocketProvider>
     </AuthProvider>
   );
 }
