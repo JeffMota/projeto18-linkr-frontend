@@ -130,6 +130,7 @@ export default function UserTimeLine() {
       })
       promise.catch((err) => {
         console.log(err.response.message)
+        alert("Houve um erro ")
         setDisable(false)
       })
     }
@@ -142,7 +143,7 @@ export default function UserTimeLine() {
         <div>
           <h1>{infoUsername}'s posts</h1>
           {(localStorage.getItem("userId") !== userId) &&
-            <FollowBtn disabled={disable} clickFunction={handleFollow} following={following} />
+            <FollowBtn data-test="follow-btn" disabled={disable} clickFunction={handleFollow} following={following} />
           }
         </div>
         {(localStorage.getItem("userId") == userId) &&

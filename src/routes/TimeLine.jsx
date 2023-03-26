@@ -16,6 +16,9 @@ export default function TimeLine() {
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [followingList, setFollowingList] = useState([]);
+  const [message, setMessage] = useState("You don't follow anyone yet. Seach for news friends!")
+
   const navigate = useNavigate();
   const { REACT_APP_API_URL } = process.env;
   const [following , setFollowing] = useState(false)
@@ -39,6 +42,12 @@ export default function TimeLine() {
         "An error occured while trying to fetch the posts, please refresh the page"
       );
       setLoading(true);
+
+      if (localStorage.getItem("userToken")) localStorage.removeItem("userToken");
+      if (localStorage.getItem("userId")) localStorage.removeItem("userId");
+      if (localStorage.getItem("userImgUrl"))
+        localStorage.removeItem("userImgUrl");
+      navigate("/");
     });
 
     const followSomeone = axios.get(`${REACT_APP_API_URL}/followers/${infosUser.userId}`)
@@ -48,7 +57,6 @@ export default function TimeLine() {
       }
     } )
     console.log(following)
-
 
   }, [
     REACT_APP_API_URL,
@@ -75,11 +83,13 @@ export default function TimeLine() {
       {post.length !== 0 ? (
         <ContainerPosts>
           {post.map((p) => (
-            <Post
-              key={p.id}
-              body={p}
-              liked={p.likesUserId.includes(parseInt(infosUser.userId))}
-            />
+            (followingList.includes(p.userId)) && (
+              <Post
+                key={p.id}
+                body={p}
+                liked={p.likesUserId.includes(parseInt(infosUser.userId))}
+              />
+            )
           ))}
         </ContainerPosts>
       ) : following?(
