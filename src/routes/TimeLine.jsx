@@ -3,7 +3,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { SocketContext } from "../contexts/SocketContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import NavBar from "../components/NavBar";
@@ -21,6 +21,7 @@ export default function TimeLine() {
 
   const navigate = useNavigate();
   const { REACT_APP_API_URL } = process.env;
+  const [following , setFollowing] = useState(false)
   socket.on("update", (data) => {
     setSocketChannel(true);
   });
@@ -33,7 +34,6 @@ export default function TimeLine() {
       headers: { Authorization: `Bearer ${infosUser.token}` },
     });
     res.then((res) => {
-      console.log(res.status);
       setPost(res.data);
       setLoading(true);
     });
@@ -50,17 +50,14 @@ export default function TimeLine() {
       navigate("/");
     });
 
-    const promise = axios.get(`${REACT_APP_API_URL}/followers/${localStorage.getItem('userId')}`)
-    promise.then((res) => {
+    const followSomeone = axios.get(`${REACT_APP_API_URL}/followers/${infosUser.userId}`)
+    followSomeone.then((followSomeone)=>{
+      if(followSomeone.data.length > 0){
+        setFollowing(true) 
+      }
+    } )
+    console.log(following)
 
-      const list = res.data.map(res => res.followingId)
-      if (list.length > 0) setMessage("No posts found from your friends")
-
-      setFollowingList(list)
-    })
-    promise.catch((err) => {
-      console.log(err.response.message)
-    })
   }, [
     REACT_APP_API_URL,
     infosUser,
@@ -68,6 +65,7 @@ export default function TimeLine() {
     formSubmitted,
     setSocketChannel,
     socketChannel,
+    following
   ]);
   if (!loading) {
     return <Loading />;
@@ -94,9 +92,12 @@ export default function TimeLine() {
             )
           ))}
         </ContainerPosts>
-      ) : (
-        <div data-test="message">{message}</div>
-      )}
+      ) : following?(
+        <div data-test="message">No posts found from your friends</div>
+      ):(
+        <div data-test="message">You don't follow anyone yet. Search for new friends!</div>
+      )
+      }
     </Container>
   );
 }
