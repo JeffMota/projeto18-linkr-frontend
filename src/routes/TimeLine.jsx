@@ -30,7 +30,7 @@ export default function TimeLine() {
     }
     setSocketChannel(false);
     const res = axios.get(`${REACT_APP_API_URL}/posts`, {
-      headers: { Authorization: `Bearer ${infosUser.token}` },
+      headers: { Authorization: `Bearer ${localStorage.getItem("userId")}` },
     });
     res.then((res) => {
       console.log(res.status);
