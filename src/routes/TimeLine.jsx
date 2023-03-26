@@ -16,6 +16,9 @@ export default function TimeLine() {
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [followingList, setFollowingList] = useState([]);
+  const [message, setMessage] = useState("You don't follow anyone yet. Seach for news friends!")
+
   const navigate = useNavigate();
   const { REACT_APP_API_URL } = process.env;
   socket.on("update", (data) => {
@@ -39,7 +42,25 @@ export default function TimeLine() {
         "An error occured while trying to fetch the posts, please refresh the page"
       );
       setLoading(true);
+
+      if (localStorage.getItem("userToken")) localStorage.removeItem("userToken");
+      if (localStorage.getItem("userId")) localStorage.removeItem("userId");
+      if (localStorage.getItem("userImgUrl"))
+        localStorage.removeItem("userImgUrl");
+      navigate("/");
     });
+
+    const promise = axios.get(`${REACT_APP_API_URL}/followers/${localStorage.getItem('userId')}`)
+    promise.then((res) => {
+
+      const list = res.data.map(res => res.followingId)
+      if (list.length > 0) setMessage("No posts found from your friends")
+
+      setFollowingList(list)
+    })
+    promise.catch((err) => {
+      console.log(err.response.message)
+    })
   }, [
     REACT_APP_API_URL,
     infosUser,
@@ -64,15 +85,17 @@ export default function TimeLine() {
       {post.length !== 0 ? (
         <ContainerPosts>
           {post.map((p) => (
-            <Post
-              key={p.id}
-              body={p}
-              liked={p.likesUserId.includes(parseInt(infosUser.userId))}
-            />
+            (followingList.includes(p.userId)) && (
+              <Post
+                key={p.id}
+                body={p}
+                liked={p.likesUserId.includes(parseInt(infosUser.userId))}
+              />
+            )
           ))}
         </ContainerPosts>
       ) : (
-        <div data-test="message">There are no posts yet</div>
+        <div data-test="message">{message}</div>
       )}
     </Container>
   );
