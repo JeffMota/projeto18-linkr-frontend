@@ -32,10 +32,13 @@ export default function SignupPage() {
     }
 
     const promise = axios.post(process.env.REACT_APP_API_URL + '/signup', body)
-    promise.then(res => navigate('/'))
+    promise.then((res) => {navigate('/')})
     promise.catch(err => {
       setLoading(false)
-      if (err.response.status === 409) return alert("This email is already registered")
+      if (err.response.status === 409) {
+        setLoading(false);
+        return alert("This email is already registered")
+      }
       console.log(err.response)
     })
 
