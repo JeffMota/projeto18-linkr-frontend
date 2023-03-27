@@ -1,49 +1,66 @@
 import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { AiFillDelete, AiOutlineHeart, AiFillEdit } from "react-icons/ai";
-import { AiFillHeart } from "react-icons/ai";
+import {
+  AiFillDelete,
+  AiOutlineHeart,
+  AiFillEdit,
+  AiOutlineComment,
+  AiFillHeart,
+} from "react-icons/ai";
 import { ReactTagify } from "react-tagify";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
 import Comment from "../components/Comment";
+import { useEffect } from "react";
+import AddComment from "./AddComment";
 
 export default function Post({ body, liked }) {
   const [clickLike, setClickLike] = useState(!liked);
+  const [clickComment, setClickComment] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [textHovered, setTextHovered] = useState(body.likesUsernames);
-  const [numLikes, setNumLikes] = useState(body.likes);
+  const [textHovered, setTextHovered] = useState([]);
+  const [numLikes, setNumLikes] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [numComments, setNumComments] = useState(0);
   const { REACT_APP_API_URL } = process.env;
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const navigate = useNavigate();
   const { infosUser } = useContext(AuthContext);
-  ///
-
-  const [comment, setComment] = useState([
-    {
-      pictureUrl:
-        "https://sdinovacoesgraficas.com.br/wp-content/uploads/2020/07/the-flash_2023-Costurado-1I1-CAPA1.png",
-      username: "Flash",
-      description: "Também achei",
-      follow: "post's author",
-    },
-    {
-      pictureUrl:
-        "https://sdinovacoesgraficas.com.br/wp-content/uploads/2020/07/the-flash_2023-Costurado-1I1-CAPA1.png",
-      username: "Flash",
-      description: "Também achei",
-      follow: "following",
-    },
-    {
-      pictureUrl:
-        "https://sdinovacoesgraficas.com.br/wp-content/uploads/2020/07/the-flash_2023-Costurado-1I1-CAPA1.png",
-      username: "Flash",
-      description: "Também achei",
-      follow: "",
-    },
+  const [comment, setComments] = useState([0]);
+  useEffect(() => {
+    setComments(body.comments);
+    if (body.likesUsernames.length === 1 || body.likesUsernames.length === 0) {
+      setTextHovered(body.likesUsernames);
+    } else if (body.likesUsernames.length === 2) {
+      setTextHovered(`${body.likesUsernames[0]} and ${body.likesUsernames[1]}`);
+    } else if (body.likesUsernames.length === 3) {
+      setTextHovered(
+        `${body.likesUsernames[0]}, ${body.likesUsernames[1]} and ${body.likesUsernames[2]}`
+      );
+    } else {
+      setTextHovered(
+        `${body.likesUsernames[0]}, ${body.likesUsernames[1]} and other ${
+          body.likesUsernames.length - 2
+        } people`
+      );
+    }
+    setNumLikes(body.likesUsernames.length);
+    setNumComments(body.comments ? body.comments.length : 0);
+    setLoading(true);
+  }, [
+    setComments,
+    setTextHovered,
+    setNumLikes,
+    body.comments,
+    body.likesUsernames,
+    body.likes,
+    setNumComments,
+    body.countComments,
+    formSubmitted,
   ]);
-
-  ///
 
   async function like(postId) {
     setButtonDisabled(true);
@@ -114,6 +131,10 @@ export default function Post({ body, liked }) {
     // const updateClicks = await axios.post()
     navigate(`/hashtag/${normalizedTag}`, { cleanTag: cleanTag });
   }
+
+  if (!loading) {
+    return <Loading />;
+  }
   return (
     <>
       <ContainerPost data-test="post">
@@ -128,12 +149,19 @@ export default function Post({ body, liked }) {
             disabled={buttonDisabled}>
             {clickLike ? <AiOutlineHeart /> : <AiFillHeart />}
           </ContainerLike>
-          <ContainerNumberLikes
+          <ContainerNumber
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}>
             <h4 data-test="counter">{numLikes} likes</h4>
-            {isHovered && <div data-test="tooltip">{textHovered}</div>}
-          </ContainerNumberLikes>
+            {numLikes > 0 && isHovered && <div>{textHovered}</div>}
+          </ContainerNumber>
+          <ContainerComment
+            onClick={() => setClickComment((current) => !current)}>
+            <AiOutlineComment />
+          </ContainerComment>
+          <ContainerNumber>
+            <h4>{numComments} comments</h4>
+          </ContainerNumber>
         </div>
         <div>
           <div>
@@ -172,14 +200,14 @@ export default function Post({ body, liked }) {
           </a>
         </div>
       </ContainerPost>
-      {comment.length !== 0 && (
+      {clickComment && (
         <ContainerComments>
-          {comment.map((p) => (
-            <>
-              <Comment key={p.id} body={p} />
-              <hr></hr>
-            </>
-          ))}
+          {comment && comment.map((p) => <Comment key={p.id} body={p} />)}
+          <AddComment
+            pictureUrl={localStorage.getItem("userImgUrl")}
+            setFormSubmitted={setFormSubmitted}
+            postId={body.id}
+          />
         </ContainerComments>
       )}
     </>
@@ -199,6 +227,8 @@ const ContainerPost = styled.div`
   display: flex;
   font-family: "Lato", sans-serif;
   font-weight: 400;
+  position: relative;
+  z-index: 2;
   a {
     text-decoration: none;
     h3 {
@@ -217,26 +247,22 @@ const ContainerPost = styled.div`
       width: 50px;
       height: 50px;
       border-radius: 100%;
-      margin-bottom: 15px;
+      margin: 0 5px 15px 5px;
       object-fit: cover;
     }
   }
   > div:last-child {
-    margin-left: 20px;
-    width: calc(100% - 40px - 10px);
-
+    margin: 0 10px;
+    width: calc(100% - 70px);
     > div {
       display: flex;
       justify-content: space-between;
-
       > div {
         display: flex;
-
         justify-content: space-between;
         width: 50px;
       }
     }
-
     h1 {
       color: #ffffff;
       font-size: 19px;
@@ -277,6 +303,18 @@ const ContainerPost = styled.div`
       width: fit-content;
     }
   }
+  @media only screen and (max-width: 600px) {
+    width: 100%;
+    border-radius: 0;
+    section {
+      width: 100%;
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 0px 11px 11px 0px;
+      }
+    }
+  }
 `;
 
 const ContainerLike = styled.div`
@@ -284,9 +322,14 @@ const ContainerLike = styled.div`
   cursor: pointer;
 `;
 
-const ContainerNumberLikes = styled.div`
+const ContainerComment = styled.div`
+  cursor: pointer;
+`;
+
+const ContainerNumber = styled.div`
   position: relative;
   font-size: 11px;
+  margin-bottom: 15px;
   > div {
     position: absolute;
     top: 100%;
@@ -294,25 +337,36 @@ const ContainerNumberLikes = styled.div`
     transform: translateX(-50%);
     background-color: #fff;
     border: 1px solid #ccc;
-    padding: 10px;
+    margin-top: 10px;
+    padding: 5px 10px;
     font-size: 14px;
     line-height: 1.5;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
     z-index: 1;
+    min-width: max-content;
+    &:before {
+      content: "";
+      position: absolute;
+      border-style: solid;
+      border-width: 0 10px 10px 10px;
+      border-color: transparent transparent #fff transparent;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
 `;
 
 const ContainerComments = styled.div`
   display: flex;
+  position: relative;
+  z-index: 1;
   background-color: #1e1e1e;
   flex-direction: column;
   align-items: center;
   width: 100%;
   height: fit-content;
-  padding-top: 10px;
-  hr {
-    width: 95%;
-    height: 0;
-    border-top: 1px solid #353535;
-  }
+  padding-top: 20px;
+  border-radius: 16px;
+  margin-top: -25px;
 `;
