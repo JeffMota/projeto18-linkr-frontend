@@ -3,7 +3,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { SocketContext } from "../contexts/SocketContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Post from "../components/Post";
 import Loading from "../components/Loading";
 import NavBar from "../components/NavBar";
@@ -16,8 +16,12 @@ export default function TimeLine() {
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [followingList, setFollowingList] = useState([]);
+  const [message, setMessage] = useState("You don't follow anyone yet. Seach for news friends!")
+
   const navigate = useNavigate();
   const { REACT_APP_API_URL } = process.env;
+  const [following , setFollowing] = useState(false)
   socket.on("update", (data) => {
     setSocketChannel(true);
   });
@@ -30,7 +34,6 @@ export default function TimeLine() {
       headers: { Authorization: `Bearer ${infosUser.token}` },
     });
     res.then((res) => {
-      console.log(res.status);
       setPost(res.data);
       setLoading(true);
     });
@@ -39,7 +42,22 @@ export default function TimeLine() {
         "An error occured while trying to fetch the posts, please refresh the page"
       );
       setLoading(true);
+
+      if (localStorage.getItem("userToken")) localStorage.removeItem("userToken");
+      if (localStorage.getItem("userId")) localStorage.removeItem("userId");
+      if (localStorage.getItem("userImgUrl"))
+        localStorage.removeItem("userImgUrl");
+      navigate("/");
     });
+
+    const followSomeone = axios.get(`${REACT_APP_API_URL}/followers/${infosUser.userId}`)
+    followSomeone.then((followSomeone)=>{
+      if(followSomeone.data.length > 0){
+        setFollowing(true) 
+      }
+    } )
+    console.log(following)
+
   }, [
     REACT_APP_API_URL,
     infosUser,
@@ -47,6 +65,7 @@ export default function TimeLine() {
     formSubmitted,
     setSocketChannel,
     socketChannel,
+    following
   ]);
   if (!loading) {
     return <Loading />;
@@ -64,16 +83,21 @@ export default function TimeLine() {
       {post.length !== 0 ? (
         <ContainerPosts>
           {post.map((p) => (
-            <Post
-              key={p.id}
-              body={p}
-              liked={p.likesUserId.includes(parseInt(infosUser.userId))}
-            />
+            (followingList.includes(p.userId)) && (
+              <Post
+                key={p.id}
+                body={p}
+                liked={p.likesUserId.includes(parseInt(infosUser.userId))}
+              />
+            )
           ))}
         </ContainerPosts>
-      ) : (
-        <div data-test="message">There are no posts yet</div>
-      )}
+      ) : following?(
+        <div data-test="message">No posts found from your friends</div>
+      ):(
+        <div data-test="message">You don't follow anyone yet. Search for new friends!</div>
+      )
+      }
     </Container>
   );
 }

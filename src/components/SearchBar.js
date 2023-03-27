@@ -1,10 +1,13 @@
 import styled from "styled-components"
 import { useState } from "react"
 import { AiOutlineSearch } from 'react-icons/ai';
+import { useContext } from "react";
 // import {DebounceInput} from 'react-debounce-input';
 import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
+
 
 
 export default function SearchBar() {
@@ -12,10 +15,14 @@ export default function SearchBar() {
     const [search, setSearch] = useState("")
     const [searchResult, setSearchResult] = useState([])
     const [toggleResult, setToggleResult] = useState(false)
+    const { infosUser } = useContext(AuthContext);
+
 
     async function fetchData() {
         try {
-            const req = await axios.post(process.env.REACT_APP_API_URL + '/search', { username: search })
+            const payload = {username:search}
+            const req = await axios.post(process.env.REACT_APP_API_URL + '/search',  payload,{
+                headers: { authorization: `Bearer ${infosUser.token}` }} )
             setSearchResult(req.data)
             console.log(searchResult)
         } catch (error) {
@@ -56,6 +63,8 @@ export default function SearchBar() {
                     (searchResult.map((r) => <ResultBox data-test="user-search">
                         <Img onClick={() => { goUserPage(r.id) }} src={r.pictureUrl} />
                         <Username onClick={() => { goUserPage(r.id) }} >{r.username}</Username>
+                        <Following>{r.following? "• following" :<></>}</Following>
+                        
                     </ResultBox>
                     )))}
             </SearchBarResult>
@@ -119,4 +128,17 @@ display:flex;
 `
 const Username = styled.div`
 margin-top:20px;
-margin-left:40px`
+margin-left:10px;
+font-size: 19px;
+`
+
+const Following = styled.div`
+margin-top:20px;
+margin-left:10px;
+color: #C5C5C5;
+font-family: 'Lato';
+font-style: normal;
+font-weight: 400;
+font-size: 19px;
+line-height: 23px;
+`

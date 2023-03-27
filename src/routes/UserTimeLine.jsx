@@ -65,23 +65,36 @@ export default function UserTimeLine() {
       console.log(err.response.message)
     })
 
-    const res = axios.get(`${REACT_APP_API_URL}/posts`, {
+    const res = axios.get(`${REACT_APP_API_URL}/posts/${userId}`, {
       headers: { Authorization: `Bearer ${infosUser.token}` },
     });
     res.then((res) => {
 
       const filtered = res.data.filter(p => p.userId == userId);
 
-      setPostUser(filtered);
+      if(filtered.length==0){
+        setPostUser("")
+        const res = axios.get(`${REACT_APP_API_URL}/search/${userId}`, {
+          headers: { Authorization: `Bearer ${infosUser.token}` },
+        });
+        res.then((res)=> {
+          console.log(res,"data")
+          setInfoUsername(res.data[0].username)
 
-      setInfoUsername(filtered[0].username)
+        })
+      }
+      else{
+        setPostUser(filtered);
+        setInfoUsername(filtered[0].username)
+      }
+
+      console.log(filtered)
       setLoading(true);
     });
     res.catch(() => {
       alert("An error occured while trying to fetch the posts, please refresh the page");
       setLoading(true);
     });
-
 
   }, [REACT_APP_API_URL, infosUser, navigate, formSubmitted, refresh]);
 
@@ -117,6 +130,7 @@ export default function UserTimeLine() {
       })
       promise.catch((err) => {
         console.log(err.response.message)
+        alert("Houve um erro ")
         setDisable(false)
       })
     }
@@ -129,7 +143,7 @@ export default function UserTimeLine() {
         <div>
           <h1>{infoUsername}'s posts</h1>
           {(localStorage.getItem("userId") !== userId) &&
-            <FollowBtn disabled={disable} clickFunction={handleFollow} following={following} />
+            <FollowBtn data-test="follow-btn" disabled={disable} clickFunction={handleFollow} following={following} />
           }
         </div>
         {(localStorage.getItem("userId") == userId) &&

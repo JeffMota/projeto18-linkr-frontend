@@ -165,13 +165,13 @@ export default function Post({ body, liked }) {
         </div>
         <div>
           <div>
-            <h1 onClick={() => navigate(`/user/${body.userId}`)}>
+            <h1 data-test="username" onClick={() => navigate(`/user/${body.userId}`)}>
               {body.username}
             </h1>
             {body.userId === Number(localStorage.getItem("userId")) && (
               <div>
-                <AiFillEdit onClick={() => updatePost(body.id)} />
-                <AiFillDelete onClick={() => deletePost(body.id)} />
+                <AiFillEdit data-test="edit-btn" onClick={() => updatePost(body.id)} />
+                <AiFillDelete data-test="delete-btn" onClick={() => deletePost(body.id)} />
               </div>
             )}
           </div>
@@ -183,7 +183,7 @@ export default function Post({ body, liked }) {
             <h2>{body.description}</h2>
           )}
           <a
-            ata-test="link"
+            data-test="link"
             href={body.url}
             target="_blank"
             rel="noopener noreferrer">
