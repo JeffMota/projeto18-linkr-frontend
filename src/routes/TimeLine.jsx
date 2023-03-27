@@ -92,6 +92,12 @@ const Container = styled.div`
     color: #ffffff;
     margin-bottom: 40px;
   }
+  @media only screen and (max-width: 600px) {
+    width: 100%;
+    h1 {
+      margin-bottom: 10px;
+    }
+  }
 `;
 
 const ContainerAddPost = styled.div`
@@ -102,6 +108,10 @@ const ContainerAddPost = styled.div`
   margin-top: 50px;
   margin-bottom: 30px;
   width: 600px;
+  @media only screen and (max-width: 600px) {
+    width: 100%;
+    margin: 0;
+  }
 `;
 
 const ContainerPosts = styled.div`

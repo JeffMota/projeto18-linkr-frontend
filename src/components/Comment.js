@@ -1,51 +1,27 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import axios from "axios";
-import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Comment({ body }) {
-  const { REACT_APP_API_URL } = process.env;
   const navigate = useNavigate();
-  const { infosUser } = useContext(AuthContext);
-
-  // async function like(postId) {
-  //   setButtonDisabled(true);
-  //   if (clickLike) {
-  //     setClickLike(false);
-  //   } else {
-  //     setClickLike(true);
-  //   }
-  //   try {
-  //     await axios.post(
-  //       `${REACT_APP_API_URL}/likes`,
-  //       { postId },
-  //       {
-  //         headers: { Authorization: `Bearer ${infosUser.token}` },
-  //       }
-  //     );
-  //     setButtonDisabled(false);
-  //   } catch (res) {
-  //     setClickLike((current) => !current);
-  //     setButtonDisabled(false);
-  //   }
-  //   return;
-  // }
-
   return (
-    <ContainerComment>
-      <div>
-        <img src={body.pictureUrl} alt="imageComment" />
-      </div>
-      <div>
+    <>
+      <ContainerComment>
         <div>
-          <h1 onClick={() => navigate(`/user/${body.userId}`)}>
-            {body.username} {body.follow && <span> • {body.follow}</span>}
-          </h1>
+          <img src={body.pictureUrl} alt="imageComment" />
         </div>
-        <h2>{body.description}</h2>
-      </div>
-    </ContainerComment>
+        <div>
+          <div>
+            <h1 onClick={() => navigate(`/user/${body.userId}`)}>
+              {body.username}{" "}
+              {body.followStatus && <span>{body.followStatus}</span>}
+            </h1>
+          </div>
+          <h2>{body.comment}</h2>
+        </div>
+      </ContainerComment>
+      <Line></Line>
+    </>
   );
 }
 
@@ -53,11 +29,12 @@ const ContainerComment = styled.div`
   background-color: #1e1e1e;
   width: 100%;
   height: fit-content;
-  border: none;
   padding: 15px;
   display: flex;
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
+  * {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+  }
   a {
     text-decoration: none;
     h3 {
@@ -81,20 +58,17 @@ const ContainerComment = styled.div`
   }
   > div:last-child {
     margin-left: 20px;
-    width: calc(100% - 40px - 10px);
-
+    width: calc(100% - 50px - 10px);
+    word-break: break-all;
     > div {
       display: flex;
       justify-content: space-between;
-
       > div {
         display: flex;
-
         justify-content: space-between;
         width: 50px;
       }
     }
-
     h1 {
       color: #f3f3f3;
       font-size: 14px;
@@ -108,4 +82,10 @@ const ContainerComment = styled.div`
       color: #565656;
     }
   }
+`;
+
+const Line = styled.div`
+  height: 1px;
+  width: calc(100% - 30px);
+  background-color: #353535;
 `;
