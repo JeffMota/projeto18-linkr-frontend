@@ -21,7 +21,7 @@ export default function TimeLine() {
 
   const navigate = useNavigate();
   const { REACT_APP_API_URL } = process.env;
-  const [following , setFollowing] = useState(false)
+  const [following, setFollowing] = useState(false)
   socket.on("update", (data) => {
     setSocketChannel(true);
   });
@@ -31,7 +31,7 @@ export default function TimeLine() {
     }
     setSocketChannel(false);
     const res = axios.get(`${REACT_APP_API_URL}/posts`, {
-      headers: { Authorization: `Bearer ${infosUser.token}` },
+      headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
     });
     res.then((res) => {
       setPost(res.data);
@@ -50,12 +50,19 @@ export default function TimeLine() {
       navigate("/");
     });
 
-    const followSomeone = axios.get(`${REACT_APP_API_URL}/followers/${infosUser.userId}`)
-    followSomeone.then((followSomeone)=>{
-      if(followSomeone.data.length > 0){
-        setFollowing(true) 
+    const followSomeone = axios.get(`${REACT_APP_API_URL}/followers/${localStorage.getItem("userId")}`)
+    followSomeone.then((res) => {
+      if (res.data.length > 0) {
+        setFollowing(true)
+        const list = res.data
+
+        const listFilt = list.map(f => f.followingId)
+        setFollowingList(listFilt)
       }
-    } )
+    })
+    followSomeone.catch((err) => {
+      console.log(err.response.data)
+    })
     console.log(following)
 
   }, [
@@ -92,9 +99,9 @@ export default function TimeLine() {
             )
           ))}
         </ContainerPosts>
-      ) : following?(
+      ) : following ? (
         <div data-test="message">No posts found from your friends</div>
-      ):(
+      ) : (
         <div data-test="message">You don't follow anyone yet. Search for new friends!</div>
       )
       }
