@@ -62,8 +62,10 @@ export default function UserTimeLine() {
       if (res.data) setFollowing(true)
     })
     promise.catch((err) => {
-      console.log(err.response.message)
+      // console.log(err.response.message)
     })
+
+
 
     const res = axios.get(`${REACT_APP_API_URL}/posts/${userId}`, {
       headers: { Authorization: `Bearer ${infosUser.token}` },
@@ -72,23 +74,23 @@ export default function UserTimeLine() {
 
       const filtered = res.data.filter(p => p.userId == userId);
 
-      if(filtered.length==0){
+      if (filtered.length == 0) {
         setPostUser("")
         const res = axios.get(`${REACT_APP_API_URL}/search/${userId}`, {
           headers: { Authorization: `Bearer ${infosUser.token}` },
         });
-        res.then((res)=> {
-          console.log(res,"data")
+        res.then((res) => {
+          console.log(res.data)
           setInfoUsername(res.data[0].username)
 
         })
       }
-      else{
+      else {
         setPostUser(filtered);
         setInfoUsername(filtered[0].username)
       }
 
-      console.log(filtered)
+      // console.log(filtered)
       setLoading(true);
     });
     res.catch(() => {
@@ -115,7 +117,7 @@ export default function UserTimeLine() {
         setDisable(false)
       })
       promise.catch((err) => {
-        console.log(err.response.message)
+        // console.log(err.response.message)
         setDisable(false)
       })
     }
@@ -129,7 +131,7 @@ export default function UserTimeLine() {
         setDisable(false)
       })
       promise.catch((err) => {
-        console.log(err.response.message)
+        // console.log(err.response.message)
         alert("Houve um erro ")
         setDisable(false)
       })
