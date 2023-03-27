@@ -27,8 +27,10 @@ export default function SigninPage() {
     e.preventDefault();
     setLoading(true);
 
-    if (email === "" || password === "")
+    if (email === "" || password === ""){
+      setLoading(false);
       return alert("Please fill in all fields");
+    }
 
     const body = {
       email: email,
